@@ -4,6 +4,7 @@ use std::fs::File;
 use std::fs::OpenOptions;
 use std::io;
 use std::io::prelude::*;
+use std::io::stdout;
 use std::path::PathBuf;
 use std::process::ExitCode;
 //use dirs;
@@ -68,28 +69,45 @@ fn list_notes(mut file: &File) -> std::io::Result<()> {
 fn delete_note(mut file: &File) -> std::io::Result<()> {
     let mut contents = String::new();
     file.read_to_string(&mut contents)?;
-    let lines: Vec<String> = contents.lines().map(String::from).collect();
+    let mut lines: Vec<String> = contents.lines().map(String::from).collect();
+
     for (i, line) in lines.iter().enumerate() {
         println!("{i}: {line}", i = i + 1);
     }
     print!("Select note to delete: ");
-    //let selection = 
+    stdout().flush()?;
 
     let mut input = String::new();
-
     io::stdin().read_line(&mut input)?;
     // Parse the input into an integer
-    let num: i8 = input.trim().parse()
-        .expect("Please enter a valid number");   
+    //let num: usize = input.trim().parse().expect("Please enter a valid number");
 
+    let num: usize = match input.trim().parse() {
+        Ok(num) => num,
+        Err(_) => {
+            eprintln!("not a valid number");
+            return Ok(());
+        }
+    };
 
+    if num > 0 && num <= lines.len() {
+        eprintln!("valid number");
+    } else {
+        eprintln!("not valid");
+        return Ok(());
+    }
 
-
-    // delete stuff in vector and write all to file
-
+    lines.remove(num - 1);
+    let content = lines.join("\n");
+    file.seek(io::SeekFrom::Start(0))?;
+    // Truncate the file to remove any existing content
+    file.set_len(0)?;
+    // Write new content to the file
+    file.write_all(content.as_bytes())?;
+    file.write_all("\n".as_bytes())?;
+    // + rewrite it to file
     Ok(())
 }
-
 
 fn main() -> ExitCode {
     let file_path = match check_and_create_file() {
@@ -116,20 +134,17 @@ fn main() -> ExitCode {
             Ok(()) => (),
             Err(err) => panic!("ERROR: {err}"),
         }
-    } 
-    else if args[1] == "l" {
+    } else if args[1] == "l" {
         match list_notes(&file) {
             Ok(()) => (),
             Err(err) => panic!("ERROR: {err}"),
         }
-    }
-    else if args[1] == "d" {
-            match delete_note(&file) {
+    } else if args[1] == "d" {
+        match delete_note(&file) {
             Ok(()) => (),
             Err(err) => panic!("ERROR: {err}"),
         }
-    }
-    else {
+    } else {
         eprintln!("wrong argument");
     }
     ExitCode::SUCCESS
