@@ -48,10 +48,10 @@ fn new_note(args: &[String], mut file: &File) -> std::io::Result<()> {
         return Ok(());
     }
     let content = note.join(" ");
-    println!("{}", &content);
+    //println!("{}", &content);
     file.write_all(content.as_bytes())?;
     file.write_all("\n".as_bytes())?;
-    println!("note created");
+    //println!("note created");
 
     Ok(())
 }
@@ -70,7 +70,10 @@ fn delete_note(mut file: &File) -> std::io::Result<()> {
     let mut contents = String::new();
     file.read_to_string(&mut contents)?;
     let mut lines: Vec<String> = contents.lines().map(String::from).collect();
-
+    if contents.trim().is_empty() {
+        eprintln!("file is empty");
+        return Ok(());
+    }
     for (i, line) in lines.iter().enumerate() {
         println!("{i}: {line}", i = i + 1);
     }
@@ -91,7 +94,7 @@ fn delete_note(mut file: &File) -> std::io::Result<()> {
     };
 
     if num > 0 && num <= lines.len() {
-        eprintln!("valid number");
+        //eprintln!("valid number");
     } else {
         eprintln!("not valid");
         return Ok(());
@@ -99,11 +102,16 @@ fn delete_note(mut file: &File) -> std::io::Result<()> {
 
     lines.remove(num - 1);
     let content = lines.join("\n");
+
     file.seek(io::SeekFrom::Start(0))?;
     // Truncate the file to remove any existing content
     file.set_len(0)?;
     // Write new content to the file
     file.write_all(content.as_bytes())?;
+    if content.trim().is_empty() {
+        //eprintln!("content is empty");
+        return Ok(());
+    }
     file.write_all("\n".as_bytes())?;
     // + rewrite it to file
     Ok(())
