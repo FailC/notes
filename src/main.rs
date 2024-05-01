@@ -1,7 +1,5 @@
 use std::env;
-use std::fs;
-use std::fs::File;
-use std::fs::OpenOptions;
+use std::fs::{self, File, OpenOptions};
 use std::io;
 use std::io::prelude::*;
 use std::io::stdout;
@@ -16,6 +14,14 @@ use std::process::ExitCode;
 // load text file
 // if it doesnt exist, create it,
 // ~/home/user/.notes
+
+fn print_help() {
+    println!("usage: notes <option> [text..]");
+    println!("options:");
+    println!("n    create new note");
+    println!("l    show all current notes");
+    println!("d    select note to delete");
+}
 
 fn check_and_create_file() -> Result<PathBuf, io::Error> {
     if let Some(home_dir) = dirs::home_dir() {
@@ -131,8 +137,9 @@ fn main() -> ExitCode {
     //let mut args: Vec<String> = env::args().collect();
     let args: Vec<String> = env::args().collect();
     if args.len() <= 1 {
-        eprintln!("ERROR: no argument provided");
-        return ExitCode::FAILURE;
+        print_help();
+        //eprintln!("ERROR: no argument provided");
+        return ExitCode::SUCCESS;
     }
     // arg 1 => n, d, l
     // arg 2.. => new note, if arg1
