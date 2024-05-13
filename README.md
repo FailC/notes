@@ -17,7 +17,7 @@ push notes app
 ```
 #### Installation (Linux):
 ```
-https://github.com/FailC/notes.git
+git clone https://github.com/FailC/notes.git
 cd notes
 cargo build --release
 mv ./target/release/notes /usr/local/bin
