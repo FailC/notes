@@ -35,21 +35,18 @@ fn check_and_create_file() -> Result<PathBuf, io::Error> {
 }
 
 fn new_note(args: &[String], mut file: &File) -> std::io::Result<()> {
-    // parse line into vec?
     let mut note: Vec<String> = Vec::new();
     for arg in args.iter().skip(2) {
         if !arg.trim().is_empty() {
             note.push(arg.to_owned());
         }
     }
-    // return early
     if note.is_empty() {
         return Ok(());
     }
     let content = note.join(" ");
     file.write_all(content.as_bytes())?;
     file.write_all("\n".as_bytes())?;
-
     Ok(())
 }
 
@@ -98,11 +95,10 @@ fn delete_note(mut file: &File) -> std::io::Result<()> {
     lines.remove(num - 1);
     let content = lines.join("\n");
     file.seek(io::SeekFrom::Start(0))?;
-    // Truncate the file to remove any existing content
+    //remove any existing content
     file.set_len(0)?;
     file.write_all(content.as_bytes())?;
     if content.trim().is_empty() {
-        //eprintln!("content is empty");
         return Ok(());
     }
     file.write_all("\n".as_bytes())?;
