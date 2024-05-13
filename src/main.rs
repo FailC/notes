@@ -5,29 +5,21 @@ use std::io::prelude::*;
 use std::io::stdout;
 use std::path::PathBuf;
 use std::process::ExitCode;
-//use dirs;
-// notes -arg text
-// notes -n neue notiz
-// notes -d notiz löschen
-// notes -l list
-// notes    list
-// load text file
-// if it doesnt exist, create it,
-// ~/home/user/.notes
 
 fn print_help() {
     println!("usage: notes <option> [text..]");
     println!("options:");
-    println!("n    create new note");
-    println!("l    show all current notes");
-    println!("d    select note to delete");
+    println!("    n    create new note");
+    println!("    l    show all current notes");
+    println!("    d    select note to delete");
+    println!("    h    print help page");
 }
 
 fn check_and_create_file() -> Result<PathBuf, io::Error> {
     if let Some(home_dir) = dirs::home_dir() {
-        let file_path = home_dir.join(".notes_storage");
+        let file_path = home_dir.join(".notes_storage_file"); // surely nobody has an exisiting
+                                                              // file with that name..
         if fs::metadata(&file_path).is_ok() {
-            //println!("file exist");
         } else {
             let _ = File::create(&file_path)?;
             println!("new note file created");
@@ -50,14 +42,13 @@ fn new_note(args: &[String], mut file: &File) -> std::io::Result<()> {
             note.push(arg.to_owned());
         }
     }
+    // return early
     if note.is_empty() {
         return Ok(());
     }
     let content = note.join(" ");
-    //println!("{}", &content);
     file.write_all(content.as_bytes())?;
     file.write_all("\n".as_bytes())?;
-    //println!("note created");
 
     Ok(())
 }
@@ -88,8 +79,6 @@ fn delete_note(mut file: &File) -> std::io::Result<()> {
 
     let mut input = String::new();
     io::stdin().read_line(&mut input)?;
-    // Parse the input into an integer
-    //let num: usize = input.trim().parse().expect("Please enter a valid number");
 
     let num: usize = match input.trim().parse() {
         Ok(num) => num,
@@ -99,34 +88,31 @@ fn delete_note(mut file: &File) -> std::io::Result<()> {
         }
     };
 
+    // what the hell is this
+    // TODO: change logic
     if num > 0 && num <= lines.len() {
-        //eprintln!("valid number");
     } else {
         eprintln!("not valid");
         return Ok(());
     }
-
     lines.remove(num - 1);
     let content = lines.join("\n");
-
     file.seek(io::SeekFrom::Start(0))?;
     // Truncate the file to remove any existing content
     file.set_len(0)?;
-    // Write new content to the file
     file.write_all(content.as_bytes())?;
     if content.trim().is_empty() {
         //eprintln!("content is empty");
         return Ok(());
     }
     file.write_all("\n".as_bytes())?;
-    // + rewrite it to file
     Ok(())
 }
 
 fn main() -> ExitCode {
     let file_path = match check_and_create_file() {
         Ok(fp) => fp,
-        Err(_) => panic!("ERROR: file fucked up"),
+        Err(_) => panic!("ERROR: filesystem behaving weird"), // shouldn't fail ever
     };
 
     let file = match OpenOptions::new().read(true).append(true).open(file_path) {
@@ -134,16 +120,11 @@ fn main() -> ExitCode {
         Err(_) => panic!("ERROR: can't open file"),
     };
 
-    //let mut args: Vec<String> = env::args().collect();
     let args: Vec<String> = env::args().collect();
     if args.len() <= 1 {
         print_help();
-        //eprintln!("ERROR: no argument provided");
         return ExitCode::SUCCESS;
     }
-    // arg 1 => n, d, l
-    // arg 2.. => new note, if arg1
-
     if args[1] == "n" {
         match new_note(&args, &file) {
             Ok(()) => (),
@@ -159,8 +140,11 @@ fn main() -> ExitCode {
             Ok(()) => (),
             Err(err) => panic!("ERROR: {err}"),
         }
+    } else if args[1] == "h" {
+        print_help();
     } else {
-        eprintln!("wrong argument");
+        eprintln!("invalid argument");
+        print_help();
     }
     ExitCode::SUCCESS
 }
