@@ -29,10 +29,15 @@ cd notes
 cargo build --release
 mv ./target/release/notes /usr/local/bin
 ```
-works the same way in Windows, binary needs to be added to PATH.
-Not tested on macOS, should be working 
+Windows:
+```bash
+git clone https://github.com/FailC/notes.git
+cd notes
+cargo build --release
+move ".\target\release\notes.exe" "C:\any_folder_that_is_added_to_path"
+```
 
-It creates a hidden file 
+It creates a hidden file in the home directory
 `~/.notes_storage_file` 
 after running for the first time.
 You must change the code for a user-defined path (suckless do it yourself mindset..)
