@@ -15,12 +15,29 @@ Now you can list your notes
 notes l
 push notes app
 ```
-#### Installation (Linux):
+if your shell (zsh, maybe others) has problems with special characters just wrap your note in quotation marks: 
+```bash
+notes n "pacman -Syu today?!"
+```
+#### Installation:
+Rust needs to be installed -> see rust-lang.org
+
+Linux:
 ```
 git clone https://github.com/FailC/notes.git
 cd notes
 cargo build --release
 mv ./target/release/notes /usr/local/bin
 ```
-It creates a hidden file `~/.notes_storage_file` after running for the first time.
-You must change the code for a user-defined path yourself (suckless do it yourself mindset..)
+works the same way in Windows, binary needs to be added to PATH.
+Not tested on macOS, should be working 
+
+It creates a hidden file 
+`~/.notes_storage_file` 
+after running for the first time.
+You must change the code for a user-defined path (suckless do it yourself mindset..)
+
+
+
+
+
