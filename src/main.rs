@@ -6,6 +6,9 @@ use std::io::stdout;
 use std::path::PathBuf;
 use std::process::ExitCode;
 
+// changelog
+// change backwards logic
+
 fn print_help() {
     println!("usage: notes <option> [text..]");
     println!("options:");
@@ -85,10 +88,7 @@ fn delete_note(mut file: &File) -> std::io::Result<()> {
         }
     };
 
-    // what the hell is this
-    // TODO: change logic
-    if num > 0 && num <= lines.len() {
-    } else {
+    if num < 0 || !(num <= lines.len()) {
         eprintln!("not valid");
         return Ok(());
     }
