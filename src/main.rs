@@ -6,9 +6,6 @@ use std::io::stdout;
 use std::path::PathBuf;
 use std::process::ExitCode;
 
-// changelog
-// change backwards logic
-
 fn print_help() {
     println!("usage: notes <option> [text..]");
     println!("options:");
@@ -20,8 +17,8 @@ fn print_help() {
 
 fn check_and_create_file() -> Result<PathBuf, io::Error> {
     if let Some(home_dir) = dirs::home_dir() {
-        let file_path = home_dir.join(".notes_storage_file"); // surely nobody has an exisiting
-                                                              // file with that name..
+        // change this path for a custom file location
+        let file_path = home_dir.join(".notes_storage_file"); // uniquefilenamebelike
         if fs::metadata(&file_path).is_ok() {
         } else {
             let _ = File::create(&file_path)?;
@@ -29,7 +26,6 @@ fn check_and_create_file() -> Result<PathBuf, io::Error> {
         }
         Ok(file_path)
     } else {
-        // If home directory cannot be retrieved, return an error
         Err(io::Error::new(
             io::ErrorKind::NotFound,
             "Home directory not found",
@@ -39,22 +35,25 @@ fn check_and_create_file() -> Result<PathBuf, io::Error> {
 
 fn new_note(args: &[String], mut file: &File) -> std::io::Result<()> {
     let mut note: Vec<String> = Vec::new();
-    for arg in args.iter().skip(2) {
-        if !arg.trim().is_empty() {
-            note.push(arg.to_owned());
-        }
-    }
+    // collecting provided "note" from args
+    note.push(
+        args.into_iter()
+            .skip(2)
+            .filter(|arg| !arg.trim().is_empty())
+            .map(|x| x.to_owned())
+            .collect(),
+    );
     if note.is_empty() {
         return Ok(());
     }
-    let content = note.join(" ");
+    let content: String = note.join(" ");
     file.write_all(content.as_bytes())?;
     file.write_all("\n".as_bytes())?;
     Ok(())
 }
 
 fn list_notes(mut file: &File) -> std::io::Result<()> {
-    let mut contents = String::new();
+    let mut contents: String = String::new();
     file.read_to_string(&mut contents)?;
     let lines: Vec<String> = contents.lines().map(String::from).collect();
     for line in lines {
@@ -64,7 +63,7 @@ fn list_notes(mut file: &File) -> std::io::Result<()> {
 }
 
 fn delete_note(mut file: &File) -> std::io::Result<()> {
-    let mut contents = String::new();
+    let mut contents: String = String::new();
     file.read_to_string(&mut contents)?;
     let mut lines: Vec<String> = contents.lines().map(String::from).collect();
     if contents.trim().is_empty() {
@@ -77,22 +76,21 @@ fn delete_note(mut file: &File) -> std::io::Result<()> {
     print!("Select note to delete: ");
     stdout().flush()?;
 
-    let mut input = String::new();
+    let mut input: String = String::new();
     io::stdin().read_line(&mut input)?;
 
-    let num: usize = match input.trim().parse() {
-        Ok(num) => num,
-        Err(_) => {
-            eprintln!("not a valid number");
-            return Ok(());
-        }
-    };
+    let mut numbers: Vec<usize> = input
+        .split(" ")
+        .filter_map(|x| x.trim().parse::<usize>().ok())
+        .filter(|x| *x <= lines.len() && *x != 0)
+        .collect();
 
-    if num < 0 || !(num <= lines.len()) {
-        eprintln!("not valid");
-        return Ok(());
+    numbers.sort_by(|a, b| b.cmp(a));
+
+    for num in numbers {
+        lines.remove(num - 1);
     }
-    lines.remove(num - 1);
+
     let content = lines.join("\n");
     file.seek(io::SeekFrom::Start(0))?;
     //remove any existing content
@@ -117,7 +115,7 @@ fn main() -> ExitCode {
     };
 
     let args: Vec<String> = env::args().collect();
-    if args.len() <= 1 {
+    if args.len() == 1 {
         print_help();
         return ExitCode::SUCCESS;
     }
