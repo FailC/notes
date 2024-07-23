@@ -41,7 +41,7 @@ fn new_note(args: &[String], mut file: &File) -> std::io::Result<()> {
             .skip(2)
             .filter(|arg| !arg.trim().is_empty())
             .map(|x| x.to_owned())
-            .collect(),
+            .collect::<Vec<_>>().join(" "),
     );
     if note.is_empty() {
         return Ok(());
