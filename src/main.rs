@@ -11,8 +11,20 @@ fn print_help() {
     println!("options:");
     println!("    n    create new note");
     println!("    l    show all current notes");
-    println!("    d    select note to delete");
-    println!("    h    print help page");
+    println!("    d    select notes to delete"); // example?
+    println!("    h    print help page"); // better help page
+    println!("    e    print example"); // better help page
+}
+
+fn print_example() {
+    println!("this app helps you create quick notes in your terminal");
+    println!();
+    println!("option n -> creates a new note:");
+    println!("notes n hello world");
+    println!();
+    println!("your note got saved, print all your saved notes with the l option");
+    println!("you can delete a note or multiple notes with \"notes d\"");
+    println!("notes d 2 3 1 -> deletes note 1,2 and 3");
 }
 
 fn check_and_create_file() -> Result<PathBuf, io::Error> {
@@ -20,6 +32,7 @@ fn check_and_create_file() -> Result<PathBuf, io::Error> {
         // change this path for a custom file location
         let file_path = home_dir.join(".notes_storage_file"); // uniquefilenamebelike
         if fs::metadata(&file_path).is_ok() {
+            //Ok(file_path)
         } else {
             let _ = File::create(&file_path)?;
             println!("new note file created");
@@ -41,7 +54,8 @@ fn new_note(args: &[String], mut file: &File) -> std::io::Result<()> {
             .skip(2)
             .filter(|arg| !arg.trim().is_empty())
             .map(|x| x.to_owned())
-            .collect::<Vec<_>>().join(" "),
+            .collect::<Vec<_>>()
+            .join(" "),
     );
     if note.is_empty() {
         return Ok(());
@@ -136,6 +150,8 @@ fn main() -> ExitCode {
         }
     } else if args[1] == "h" {
         print_help();
+    } else if args[1] == "e" {
+        print_example();
     } else {
         eprintln!("invalid argument");
         print_help();
