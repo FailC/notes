@@ -4,7 +4,7 @@ No more `cd`-ing into a random directory and opening a file with nvim!
 #### Commands:
 - `n <text>`: Create a new note
 - `l`: List notes
-- `d`: Select note to delete
+- `d`: Select notes to delete
 
 #### Example:
 ```bash
