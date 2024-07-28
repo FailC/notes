@@ -31,13 +31,15 @@ fn check_and_create_file() -> Result<PathBuf, io::Error> {
     if let Some(home_dir) = dirs::home_dir() {
         // change this path for a custom file location
         let file_path = home_dir.join(".notes_storage_file"); // uniquefilenamebelike
-        if fs::metadata(&file_path).is_ok() {
-            //Ok(file_path)
-        } else {
-            let _ = File::create(&file_path)?;
-            println!("new note file created");
+
+        match fs::metadata(&file_path).is_ok() {
+            true => Ok(file_path),
+            false => {
+                let _ = File::create(&file_path)?;
+                println!("new note file created");
+                Ok(file_path)
+            }
         }
-        Ok(file_path)
     } else {
         Err(io::Error::new(
             io::ErrorKind::NotFound,
