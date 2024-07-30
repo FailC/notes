@@ -22,7 +22,7 @@ notes n "pacman -Syu today?!"
 #### Installation:
 Rust needs to be installed -> see rust-lang.org
 
-Linux:
+Linux / macOS:
 ```
 git clone https://github.com/FailC/notes.git
 cd notes
