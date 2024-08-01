@@ -137,7 +137,7 @@ fn delete_note(file: &mut File) -> std::io::Result<()> {
 fn main() -> ExitCode {
     let file_path = match check_and_create_file() {
         Ok(fp) => fp,
-        Err(e) => panic!("ERROR: filesystem behaving weird\n{e}"), // shouldn't fail ever i guess
+        Err(err) => panic!("ERROR: filesystem behaving weird\n{err}"), // shouldn't fail ever i guess
     };
 
     let mut file = match OpenOptions::new().read(true).append(true).open(file_path) {
