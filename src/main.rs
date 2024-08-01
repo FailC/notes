@@ -36,7 +36,7 @@ fn check_and_create_file() -> Result<PathBuf, io::Error> {
             true => Ok(file_path),
             false => {
                 let _ = File::create(&file_path)?;
-                println!("new note file created");
+                println!("new note file created: {:?}", file_path);
                 Ok(file_path)
             }
         }
@@ -48,9 +48,13 @@ fn check_and_create_file() -> Result<PathBuf, io::Error> {
     }
 }
 
-fn new_note(args: &[String], mut file: &File) -> std::io::Result<()> {
+fn new_note(args: &[String], file: &mut File) -> std::io::Result<()> {
     let mut note: Vec<String> = Vec::new();
     // collecting provided "note" from args
+    if args.len() == 2 {
+        //dbg!("empty note");
+        return Ok(());
+    }
     note.push(
         args.into_iter()
             .skip(2)
@@ -59,36 +63,45 @@ fn new_note(args: &[String], mut file: &File) -> std::io::Result<()> {
             .collect::<Vec<_>>()
             .join(" "),
     );
-    if note.is_empty() {
-        return Ok(());
-    }
+    // note shouldn't be empty here
     let content: String = note.join(" ");
     file.write_all(content.as_bytes())?;
     file.write_all("\n".as_bytes())?;
     Ok(())
 }
 
-fn list_notes(mut file: &File) -> std::io::Result<()> {
+fn list_notes(file: &mut File) -> std::io::Result<()> {
     let mut contents: String = String::new();
     file.read_to_string(&mut contents)?;
     let lines: Vec<String> = contents.lines().map(String::from).collect();
-    for line in lines {
-        println!("{line}");
+    // maybe print message?
+    if lines.is_empty() {
+        eprintln!("nothing to do..");
+        return Ok(());
     }
+    //for line in lines {
+    //    println!("{line}");
+    //}
+    lines.iter().for_each(|line| println!("{line}"));
     Ok(())
 }
 
-fn delete_note(mut file: &File) -> std::io::Result<()> {
+fn delete_note(file: &mut File) -> std::io::Result<()> {
     let mut contents: String = String::new();
     file.read_to_string(&mut contents)?;
     let mut lines: Vec<String> = contents.lines().map(String::from).collect();
     if contents.trim().is_empty() {
-        eprintln!("file is empty");
+        eprintln!("nothing to delete");
         return Ok(());
     }
-    for (i, line) in lines.iter().enumerate() {
-        println!("{i}: {line}", i = i + 1);
-    }
+    //for (i, line) in lines.iter().enumerate() {
+    //    println!("{i}: {line}", i = i + 1);
+    //} same as:
+    lines
+        .iter()
+        .enumerate()
+        .for_each(|(i, line)| println!("{i}: {line}", i = i + 1));
+
     print!("Select note to delete: ");
     stdout().flush()?;
 
@@ -103,29 +116,31 @@ fn delete_note(mut file: &File) -> std::io::Result<()> {
 
     numbers.sort_by(|a, b| b.cmp(a));
 
-    for num in numbers {
+    //for num in numbers {
+    //    lines.remove(num - 1);
+    //}
+    numbers.iter().for_each(|num| {
         lines.remove(num - 1);
-    }
+    });
 
     let content = lines.join("\n");
-    file.seek(io::SeekFrom::Start(0))?;
     //remove any existing content
+    file.seek(io::SeekFrom::Start(0))?;
     file.set_len(0)?;
     file.write_all(content.as_bytes())?;
-    if content.trim().is_empty() {
-        return Ok(());
+    if !content.trim().is_empty() {
+        file.write_all("\n".as_bytes())?;
     }
-    file.write_all("\n".as_bytes())?;
     Ok(())
 }
 
 fn main() -> ExitCode {
     let file_path = match check_and_create_file() {
         Ok(fp) => fp,
-        Err(_) => panic!("ERROR: filesystem behaving weird"), // shouldn't fail ever
+        Err(e) => panic!("ERROR: filesystem behaving weird\n{e}"), // shouldn't fail ever i guess
     };
 
-    let file = match OpenOptions::new().read(true).append(true).open(file_path) {
+    let mut file = match OpenOptions::new().read(true).append(true).open(file_path) {
         Ok(file) => file,
         Err(_) => panic!("ERROR: can't open file"),
     };
@@ -136,17 +151,17 @@ fn main() -> ExitCode {
         return ExitCode::SUCCESS;
     }
     if args[1] == "n" {
-        match new_note(&args, &file) {
+        match new_note(&args, &mut file) {
             Ok(()) => (),
             Err(err) => panic!("ERROR: {err}"),
         }
     } else if args[1] == "l" {
-        match list_notes(&file) {
+        match list_notes(&mut file) {
             Ok(()) => (),
             Err(err) => panic!("ERROR: {err}"),
         }
     } else if args[1] == "d" {
-        match delete_note(&file) {
+        match delete_note(&mut file) {
             Ok(()) => (),
             Err(err) => panic!("ERROR: {err}"),
         }
