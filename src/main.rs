@@ -11,9 +11,9 @@ fn print_help() {
     println!("options:");
     println!("    n    create new note");
     println!("    l    show all current notes");
-    println!("    d    select notes to delete"); // example?
-    println!("    h    print help page"); // better help page
-    println!("    e    print example"); // better help page
+    println!("    d    select notes to delete");
+    println!("    h    print help page");
+    println!("    e    print example");
 }
 
 fn print_example() {
@@ -52,7 +52,6 @@ fn new_note(args: &[String], file: &mut File) -> std::io::Result<()> {
     let mut note: Vec<String> = Vec::new();
     // collecting provided "note" from args
     if args.len() == 2 {
-        //dbg!("empty note");
         return Ok(());
     }
     note.push(
@@ -79,9 +78,6 @@ fn list_notes(file: &mut File) -> std::io::Result<()> {
         eprintln!("nothing to do..");
         return Ok(());
     }
-    //for line in lines {
-    //    println!("{line}");
-    //}
     lines.iter().for_each(|line| println!("{line}"));
     Ok(())
 }
@@ -94,9 +90,7 @@ fn delete_note(file: &mut File) -> std::io::Result<()> {
         eprintln!("nothing to delete");
         return Ok(());
     }
-    //for (i, line) in lines.iter().enumerate() {
-    //    println!("{i}: {line}", i = i + 1);
-    //} same as:
+    // print lines
     lines
         .iter()
         .enumerate()
@@ -116,9 +110,6 @@ fn delete_note(file: &mut File) -> std::io::Result<()> {
 
     numbers.sort_by(|a, b| b.cmp(a));
 
-    //for num in numbers {
-    //    lines.remove(num - 1);
-    //}
     numbers.iter().for_each(|num| {
         lines.remove(num - 1);
     });
@@ -135,6 +126,7 @@ fn delete_note(file: &mut File) -> std::io::Result<()> {
 }
 
 fn main() -> ExitCode {
+    //println!("look mum i am source code");
     let file_path = match check_and_create_file() {
         Ok(fp) => fp,
         Err(err) => panic!("ERROR: filesystem behaving weird\n{err}"), // shouldn't fail ever i guess
