@@ -40,9 +40,4 @@ move ".\target\release\notes.exe" "C:\any_folder_that_is_added_to_path"
 It creates a hidden file in the home directory
 `~/.notes_storage_file` 
 after running for the first time.
-You must change the code for a user-defined path (suckless do it yourself mindset..)
-
-
-
-
-
+You must edit and recompile (cargo build) the code for a user-defined path (suckless do it yourself mindset..)
