@@ -29,14 +29,28 @@ fn print_example() {
 
 fn check_and_create_file() -> Result<PathBuf, io::Error> {
     if let Some(home_dir) = dirs::home_dir() {
-        // change this path for a custom file location
-        let file_path = home_dir.join(".notes_storage_file"); // uniquefilenamebelike
+        //
+        // change path and or file_name for a custom file location/name
+        //
+        // example
+        // let path = home_dir.join(r"my_documents/");
+        // let file_name = String::from("my_notes");
+        //
+        let path = home_dir.join(""); // for home directory
+        let file_name = String::from(".notes_storage_file");
 
+        let file_path = path.join(file_name);
+        if !path.exists() {
+            return Err(io::Error::new(
+                io::ErrorKind::NotFound,
+                "path does not exist",
+            ));
+        }
         match fs::metadata(&file_path).is_ok() {
             true => Ok(file_path),
             false => {
-                let _ = File::create(&file_path)?;
-                println!("new note file created: {:?}", file_path);
+                let _ = File::create(&file_path);
+                println!("new note file created: {}", file_path.display());
                 Ok(file_path)
             }
         }
@@ -129,7 +143,7 @@ fn main() -> ExitCode {
     //println!("look mum i am source code");
     let file_path = match check_and_create_file() {
         Ok(fp) => fp,
-        Err(err) => panic!("ERROR: filesystem behaving weird\n{err}"), // shouldn't fail ever i guess
+        Err(err) => panic!("ERROR: file not found\n{err}"),
     };
 
     let mut file = match OpenOptions::new().read(true).append(true).open(file_path) {
