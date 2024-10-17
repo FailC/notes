@@ -171,7 +171,7 @@ fn main() -> ExitCode {
             Ok(()) => (),
             Err(err) => panic!("ERROR: {err}"),
         }
-    } else if args[1] == "h" {
+    } else if args[1] == "h" || args[1] == "-h" {
         print_help();
     } else if args[1] == "e" {
         print_example();
