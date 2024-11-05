@@ -7,13 +7,13 @@ use std::path::PathBuf;
 use std::process::ExitCode;
 
 fn print_help() {
-    println!("usage: notes <option> [text..]");
-    println!("options:");
-    println!("    n    create new note");
-    println!("    l    show all current notes");
-    println!("    d    select notes to delete");
-    println!("    h    print help page");
-    println!("    e    print example");
+    println!("Usage: notes [OPTIONS]");
+    println!("Options:");
+    println!(" n <TEXT>  create new note");
+    println!(" l         show all current notes");
+    println!(" d         select notes to delete");
+    println!(" h         print help page");
+    println!(" e         print example");
 }
 
 fn print_example() {
@@ -69,7 +69,7 @@ fn new_note(args: &[String], file: &mut File) -> std::io::Result<()> {
         return Ok(());
     }
     note.push(
-        args.into_iter()
+        args.iter()
             .skip(2)
             .filter(|arg| !arg.trim().is_empty())
             .map(|x| x.to_owned())
