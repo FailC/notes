@@ -2,7 +2,7 @@
 No more `cd`-ing into a random directory and opening a file with nvim!
 
 #### Commands:
-- `n <text>`: Create a new note
+- `n [note]`: Create a new note
 - `l`: List notes
 - `d`: Select notes to delete
 
@@ -28,6 +28,8 @@ git clone https://github.com/FailC/notes.git
 cd notes
 cargo build --release
 mv ./target/release/notes /usr/local/bin
+// or use cargo install to build and install:
+cargo install --path .
 ```
 Windows:
 ```bash
