@@ -13,18 +13,6 @@ fn print_help() {
     println!(" l         show all current notes");
     println!(" d         select notes to delete");
     println!(" h         print help page");
-    println!(" e         print example");
-}
-
-fn print_example() {
-    println!("this app helps you create quick notes in your terminal");
-    println!();
-    println!("option n -> creates a new note:");
-    println!("notes n hello world");
-    println!();
-    println!("your note got saved, print all your saved notes with the l option");
-    println!("you can delete a note or multiple notes with \"notes d\"");
-    println!("notes d 2 3 1 -> deletes note 1,2 and 3");
 }
 
 fn check_and_create_file() -> Result<PathBuf, io::Error> {
