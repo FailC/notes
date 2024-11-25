@@ -161,8 +161,6 @@ fn main() -> ExitCode {
         }
     } else if args[1] == "h" || args[1] == "-h" {
         print_help();
-    } else if args[1] == "e" {
-        print_example();
     } else {
         eprintln!("invalid argument");
         print_help();
